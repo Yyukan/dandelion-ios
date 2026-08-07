@@ -17,6 +17,7 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - path: DandelionIOS
+      - path: DandelionShared
     info:
       path: DandelionIOS/Info.plist
       properties:
@@ -29,6 +30,14 @@ targets:
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationPortraitUpsideDown
+        CFBundleURLTypes:
+          - CFBundleURLSchemes:
+              - dandelion
+    entitlements:
+      path: DandelionIOS/DandelionIOS.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.nl.ostconsultancy.Dandelion
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: nl.ostconsultancy.DandelionIOS
@@ -40,3 +49,45 @@ targets:
         ENABLE_PREVIEWS: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_STYLE: Automatic
+    dependencies:
+      - target: DandelionWidgetExtension
+
+  DandelionWidgetExtension:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: DandelionWidget
+      - path: DandelionShared
+    info:
+      path: DandelionWidget/Info.plist
+      properties:
+        CFBundleDisplayName: DandelionWidget
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: DandelionWidget/DandelionWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.nl.ostconsultancy.Dandelion
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: nl.ostconsultancy.DandelionIOS.DandelionWidget
+        PRODUCT_NAME: DandelionWidget
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: NO
+        SWIFT_EMIT_LOC_STRINGS: YES
+        CODE_SIGN_STYLE: Automatic
+    # Running this extension's own scheme directly (rather than embedded in
+    # DandelionIOS) requires telling Xcode which widget kind to preview, via
+    # _XCWidgetKind - otherwise SpringBoard refuses to show it and Xcode
+    # reports "Please specify the widget kind...". Defaults to BalanceWidget;
+    # switch the value in Xcode's scheme editor to preview a different one.
+    scheme:
+      environmentVariables:
+        - variable: _XCWidgetKind
+          value: BalanceWidget
+          isEnabled: true

@@ -23,4 +23,24 @@ struct ZenBalance: Sendable, Equatable {
     let monthlyLimitUSD: Double?
     /// Spend so far in the current calendar month, in US dollars.
     let monthlyUsageUSD: Double?
+
+    /// Balance as a 0...1 fraction of its reference ceiling - the monthly
+    /// limit if one is configured, else the auto-reload amount. Single
+    /// source of truth shared by ZenBalanceCard and the Lock Screen widget
+    /// snapshot, so both render the exact same percentage.
+    var progressFraction: Double {
+        if let monthlyLimit = monthlyLimitUSD, monthlyLimit > 0 {
+            return currentUSD / monthlyLimit
+        }
+        // With no configured monthly limit, show progress toward the
+        // auto-reload amount as a reasonable reference ceiling.
+        guard autoReloadAmountUSD > 0 else { return 1 }
+        return currentUSD / autoReloadAmountUSD
+    }
+
+    /// `false` once the balance has dropped to/below its auto-reload
+    /// threshold - mirrors the warning tint shown in ZenBalanceCard.
+    var isHealthy: Bool {
+        currentUSD > autoReloadThresholdUSD
+    }
 }

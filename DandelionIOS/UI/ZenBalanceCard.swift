@@ -43,7 +43,7 @@ struct ZenBalanceCard: View {
     private func loadedContent(_ balance: ZenBalance) -> some View {
         VStack(spacing: TerminalTheme.Spacing.sm) {
             RingGaugeView(
-                progress: progress(for: balance),
+                progress: balance.progressFraction,
                 valueText: "$" + String(format: "%.2f", balance.currentUSD),
                 label: "Balance",
                 tint: ringTint(for: balance),
@@ -61,20 +61,8 @@ struct ZenBalanceCard: View {
         }
     }
 
-    private func progress(for balance: ZenBalance) -> Double {
-        if let monthlyLimit = balance.monthlyLimitUSD, monthlyLimit > 0 {
-            return balance.currentUSD / monthlyLimit
-        }
-        // With no configured monthly limit, show progress toward the
-        // auto-reload amount as a reasonable reference ceiling.
-        guard balance.autoReloadAmountUSD > 0 else { return 1 }
-        return balance.currentUSD / balance.autoReloadAmountUSD
-    }
-
     private func ringTint(for balance: ZenBalance) -> Color {
-        balance.currentUSD <= balance.autoReloadThresholdUSD
-            ? TerminalTheme.Colors.warning
-            : TerminalTheme.Colors.accent
+        balance.isHealthy ? TerminalTheme.Colors.accent : TerminalTheme.Colors.warning
     }
 
     private static func formatted(_ value: Double) -> String {

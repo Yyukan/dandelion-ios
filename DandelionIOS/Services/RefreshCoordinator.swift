@@ -6,11 +6,14 @@
 //  exposing manual pull-to-refresh and a configurable Auto-Refresh timer
 //  backed by AppSettings. There's no credential discovery/validation step
 //  here - the model catalog needs no API key at all (see
-//  ModelCatalogViewModel).
+//  ModelCatalogViewModel). After every refresh it also writes a
+//  WidgetUsageSnapshot to the shared App Group container and reloads the
+//  Lock Screen widgets' timelines - they never fetch data on their own.
 //
 
 import Foundation
 import Observation
+import WidgetKit
 
 @MainActor
 @Observable
@@ -22,6 +25,7 @@ final class RefreshCoordinator {
     private let catalogViewModel: ModelCatalogViewModel
     private let zenBalanceViewModel: ZenBalanceViewModel
     private let goUsageViewModel: GoUsageViewModel
+    private let widgetSnapshotStore: WidgetSnapshotStore
 
     private var autoRefreshTask: Task<Void, Never>?
     private var runningRefreshTask: Task<Void, Never>?
@@ -31,12 +35,14 @@ final class RefreshCoordinator {
         appSettings: AppSettings,
         catalogViewModel: ModelCatalogViewModel,
         zenBalanceViewModel: ZenBalanceViewModel,
-        goUsageViewModel: GoUsageViewModel
+        goUsageViewModel: GoUsageViewModel,
+        widgetSnapshotStore: WidgetSnapshotStore = WidgetSnapshotStore()
     ) {
         self.appSettings = appSettings
         self.catalogViewModel = catalogViewModel
         self.zenBalanceViewModel = zenBalanceViewModel
         self.goUsageViewModel = goUsageViewModel
+        self.widgetSnapshotStore = widgetSnapshotStore
 
         if appSettings.autoRefreshEnabled {
             scheduleAutoRefresh()
@@ -77,6 +83,34 @@ final class RefreshCoordinator {
         }
 
         lastRefreshDate = Date()
+
+        widgetSnapshotStore.save(buildWidgetSnapshot())
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    /// Builds the Lock Screen widgets' cached snapshot from whatever the two
+    /// view models just settled on - `nil` percentages (the `.empty` default)
+    /// stick around for `.unavailable`/`.sessionExpired`/`.loading`, so the
+    /// widgets fall back to an empty gauge instead of showing stale numbers.
+    private func buildWidgetSnapshot() -> WidgetUsageSnapshot {
+        var snapshot = WidgetUsageSnapshot.empty
+        snapshot.fetchedAt = Date()
+
+        if case .loaded(let balance) = zenBalanceViewModel.state {
+            snapshot.balancePercent = balance.progressFraction * 100
+            snapshot.isBalanceHealthy = balance.isHealthy
+        }
+
+        if case .loaded(let summary) = goUsageViewModel.state {
+            snapshot.hourPercent = summary.rolling5h.usedPercent
+            snapshot.isHourHealthy = summary.rolling5h.isHealthy
+            snapshot.weeklyPercent = summary.weekly.usedPercent
+            snapshot.isWeeklyHealthy = summary.weekly.isHealthy
+            snapshot.monthlyPercent = summary.monthly.usedPercent
+            snapshot.isMonthlyHealthy = summary.monthly.isHealthy
+        }
+
+        return snapshot
     }
 
     func setAutoRefreshEnabled(_ enabled: Bool) {

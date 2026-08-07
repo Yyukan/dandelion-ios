@@ -18,6 +18,7 @@
 
 import Foundation
 import Observation
+import WidgetKit
 
 @MainActor
 @Observable
@@ -25,6 +26,7 @@ final class SessionAuthService {
     let signInURL = URL(string: "https://opencode.ai/zen")!
 
     private let cookieStore: SessionCookieStore
+    private let widgetSnapshotStore: WidgetSnapshotStore
 
     /// Stored (not computed) so @Observable can actually notify SwiftUI when
     /// it changes - a computed property reading straight from the Keychain
@@ -32,8 +34,12 @@ final class SessionAuthService {
     /// sign-in/sign-out.
     private(set) var isSignedIn: Bool
 
-    init(cookieStore: SessionCookieStore = SessionCookieStore()) {
+    init(
+        cookieStore: SessionCookieStore = SessionCookieStore(),
+        widgetSnapshotStore: WidgetSnapshotStore = WidgetSnapshotStore()
+    ) {
         self.cookieStore = cookieStore
+        self.widgetSnapshotStore = widgetSnapshotStore
         self.isSignedIn = cookieStore.load() != nil
     }
 
@@ -44,8 +50,13 @@ final class SessionAuthService {
         isSignedIn = true
     }
 
+    /// Clears the shared widget snapshot too, so the Lock Screen widgets
+    /// fall back to an empty gauge instead of showing stale, pre-sign-out
+    /// percentages until the next refresh.
     func signOut() {
         cookieStore.clear()
         isSignedIn = false
+        widgetSnapshotStore.clear()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }

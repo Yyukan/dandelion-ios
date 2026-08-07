@@ -11,7 +11,9 @@ A native iOS app for **OpenCode Zen** (pay-as-you-go) and **OpenCode Go** (subsc
 - Go 5h/weekly/monthly usage windows and reset countdowns
 - Zen/Go model catalog: pricing and context/output limits
 
-![Demo screenshot](assets/demo.png)
+<p align="center">
+  <img src="assets/demo.png" alt="Dandelion demo" width="480">
+</p>
 
 ## Requirements
 
