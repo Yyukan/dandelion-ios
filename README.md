@@ -17,10 +17,8 @@ A native iOS app for **OpenCode Zen** (pay-as-you-go) and **OpenCode Go** (subsc
 
 ## Widgets
 
-Two widget surfaces, all driven by a single `WidgetUsageSnapshot` the host app writes to the App Group after every refresh - the widget extension never fetches:
-
-- **Lock Screen** (`.accessoryCircular`): one ring per metric - Balance ($), 5h, Weekly, Monthly. Add as many as your Lock Screen has room for.
-- **Home Screen** (`.systemSmall`): a single 2×2 dashboard with all four rings. Tap to open Dandelion.
+- **Lock Screen** — one complication per metric: Balance, 5h, Weekly, Monthly
+- **Home Screen** — a single dashboard with all four at a glance
 
 ## Requirements
 
