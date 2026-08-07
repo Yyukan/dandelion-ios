@@ -4,31 +4,22 @@
 //
 //  Full, searchable Zen + Go model catalog with per-model input/output/cache
 //  pricing and context/output limits. There's no disconnected-state gate
-//  here - the catalog needs no local API key, so it always loads. Embedded
-//  directly in DashboardView's outer scroll (no
-//  capped inner ScrollView, since nesting two vertical scrollers fights the
-//  user's swipe gesture on iOS).
+//  here - the catalog needs no local API key, so it always loads. Split into
+//  two independent views: ModelCatalogControls (static) and ModelCatalogList,
+//  which owns its own bounded ScrollView (mirroring the macOS status-bar
+//  app's catalogList) so scrolling never escapes into the rest of the
+//  dashboard - DashboardView's outer layout is a plain, non-scrolling VStack.
 //
 
 import SwiftUI
 import UIKit
 
-struct ModelCatalogView: View {
+/// Search field + provider/sort pickers. No title - it's self-evident from
+/// context. Meant to be pinned (non-scrolling) above `ModelCatalogList`.
+struct ModelCatalogControls: View {
     @Bindable var viewModel: ModelCatalogViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: TerminalTheme.Spacing.sm) {
-            Text("Model Catalog")
-                .font(TerminalTheme.Fonts.heading)
-
-            controls
-            catalogList
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .task { await viewModel.loadInitial() }
-    }
-
-    private var controls: some View {
         VStack(spacing: TerminalTheme.Spacing.xs) {
             HStack(spacing: TerminalTheme.Spacing.xs) {
                 Image(systemName: "magnifyingglass")
@@ -70,21 +61,36 @@ struct ModelCatalogView: View {
                 .fixedSize()
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
+}
 
-    private var catalogList: some View {
-        LazyVStack(spacing: TerminalTheme.Spacing.xs) {
-            if viewModel.filteredModels.isEmpty {
-                Text(viewModel.isLoadingCatalog ? "Loading catalog…" : "No models match your search.")
-                    .font(TerminalTheme.Fonts.caption)
-                    .foregroundStyle(TerminalTheme.Colors.textTertiary)
-                    .padding(.vertical, TerminalTheme.Spacing.md)
-            } else {
-                ForEach(viewModel.filteredModels) { model in
-                    CatalogModelRow(model: model)
+/// The scrollable model list itself. Owns its own contained `ScrollView`
+/// (plus pull-to-refresh and `loadInitial()`) so scrolling stays confined to
+/// just the rows - nothing above or below it in DashboardView ever moves.
+struct ModelCatalogList: View {
+    let viewModel: ModelCatalogViewModel
+    var onRefresh: () async -> Void = {}
+
+    var body: some View {
+        ScrollView {
+            LazyVStack(spacing: TerminalTheme.Spacing.xs) {
+                if viewModel.filteredModels.isEmpty {
+                    Text(viewModel.isLoadingCatalog ? "Loading catalog…" : "No models match your search.")
+                        .font(TerminalTheme.Fonts.caption)
+                        .foregroundStyle(TerminalTheme.Colors.textTertiary)
+                        .padding(.vertical, TerminalTheme.Spacing.md)
+                } else {
+                    ForEach(viewModel.filteredModels) { model in
+                        CatalogModelRow(model: model)
+                    }
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .refreshable { await onRefresh() }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .task { await viewModel.loadInitial() }
     }
 }
 
@@ -250,7 +256,12 @@ private struct CatalogModelRow: View {
 }
 
 #Preview {
-    ModelCatalogView(viewModel: ModelCatalogViewModel())
-        .padding()
-        .background(TerminalTheme.Colors.background)
+    let viewModel = ModelCatalogViewModel()
+    VStack(alignment: .leading, spacing: TerminalTheme.Spacing.sm) {
+        ModelCatalogControls(viewModel: viewModel)
+        ModelCatalogList(viewModel: viewModel)
+    }
+    .frame(height: 400)
+    .padding()
+    .background(TerminalTheme.Colors.background)
 }

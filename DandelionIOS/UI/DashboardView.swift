@@ -2,10 +2,13 @@
 //  DashboardView.swift
 //  Dandelion
 //
-//  Root dashboard screen: a full-width scrolling layout with native
-//  pull-to-refresh, showing Zen Balance, Go Usage, and Model Catalog in that
-//  order. Settings has no dedicated toolbar entry point - tapping the Zen
-//  Balance or Go Usage card opens it instead.
+//  Root dashboard screen: a static, non-scrolling outer layout (mirrors the
+//  macOS status-bar app's DashboardPanel) - Zen Balance, Go Usage, and the
+//  model catalog's search/filter controls never move. Only ModelCatalogList
+//  carries its own contained ScrollView (with pull-to-refresh), so scrolling
+//  is confined to just the model rows, never the whole pane. Settings has no
+//  dedicated toolbar entry point - tapping the Zen Balance or Go Usage card
+//  opens it instead.
 //
 
 import SwiftUI
@@ -18,29 +21,32 @@ struct DashboardView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: TerminalTheme.Spacing.md) {
-                    CardContainer {
-                        ZenBalanceCard(viewModel: model.zenBalanceViewModel, onSignIn: signIn)
-                    }
-                    .contentShape(Rectangle())
-                    .onTapGesture { showSettings = true }
+            VStack(spacing: TerminalTheme.Spacing.md) {
+                CardContainer {
+                    ZenBalanceCard(viewModel: model.zenBalanceViewModel, onSignIn: signIn)
+                }
+                .contentShape(Rectangle())
+                .onTapGesture { showSettings = true }
 
-                    CardContainer {
-                        GoUsageCard(viewModel: model.goUsageViewModel, onSignIn: signIn)
-                    }
-                    .contentShape(Rectangle())
-                    .onTapGesture { showSettings = true }
+                CardContainer {
+                    GoUsageCard(viewModel: model.goUsageViewModel, onSignIn: signIn)
+                }
+                .contentShape(Rectangle())
+                .onTapGesture { showSettings = true }
 
-                    CardContainer {
-                        ModelCatalogView(viewModel: model.catalogViewModel)
+                CardContainer {
+                    VStack(alignment: .leading, spacing: TerminalTheme.Spacing.sm) {
+                        ModelCatalogControls(viewModel: model.catalogViewModel)
+                        ModelCatalogList(
+                            viewModel: model.catalogViewModel,
+                            onRefresh: model.refreshCoordinator.refreshNow
+                        )
                     }
                 }
-                .padding(TerminalTheme.Spacing.lg)
             }
+            .padding(TerminalTheme.Spacing.lg)
             .background(TerminalTheme.Colors.background.ignoresSafeArea())
             .foregroundStyle(TerminalTheme.Colors.textPrimary)
-            .refreshable { await model.refreshCoordinator.refreshNow() }
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showSettings) {
                 SettingsView(model: model)

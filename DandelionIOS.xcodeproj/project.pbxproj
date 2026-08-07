@@ -61,7 +61,7 @@
 		D4F10BAAFB57B7863D59D3D7 /* ZenBalanceCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenBalanceCard.swift; sourceTree = "<group>"; };
 		DF73FC22E917F999F02A7C90 /* RingGaugeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingGaugeView.swift; sourceTree = "<group>"; };
 		FC357FC89A2A3C252AC7469A /* GoUsageWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoUsageWindow.swift; sourceTree = "<group>"; };
-		FD064E0B9E374B620DB98CE3 /* DandelionIOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DandelionIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FD064E0B9E374B620DB98CE3 /* DandelionIOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DandelionIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -384,6 +384,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G6LUHT349V;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = DandelionIOS/Info.plist;
@@ -408,6 +409,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G6LUHT349V;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = DandelionIOS/Info.plist;
