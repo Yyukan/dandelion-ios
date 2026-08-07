@@ -11,6 +11,8 @@ A native iOS app for **OpenCode Zen** (pay-as-you-go) and **OpenCode Go** (subsc
 - Go 5h/weekly/monthly usage windows and reset countdowns
 - Zen/Go model catalog: pricing and context/output limits
 
+![Demo screenshot](assets/demo.png)
+
 ## Requirements
 
 - iOS 17+, Xcode 16+
