@@ -41,5 +41,6 @@ struct LockScreenGaugeView: View {
         .gaugeStyle(.accessoryCircularCapacity)
         .tint(tint)
         .widgetAccentable()
+        .containerBackground(for: .widget) { Color.clear }
     }
 }
