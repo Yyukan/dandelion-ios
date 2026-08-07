@@ -15,6 +15,10 @@ import Foundation
 struct WidgetUsageSnapshot: Codable, Sendable, Equatable {
     /// `nil` means signed out / no data fetched yet - widgets render a 0% gauge.
     var balancePercent: Double?
+    /// Raw pay-as-you-go credit balance, in US dollars. Drives the centre
+    /// label on the Balance Lock Screen widget (percent is a derivative of
+    /// limit/auto-reload amount - not what the user actually wants to read).
+    var balanceUSD: Double?
     var hourPercent: Double?
     var weeklyPercent: Double?
     var monthlyPercent: Double?
@@ -27,6 +31,7 @@ struct WidgetUsageSnapshot: Codable, Sendable, Equatable {
     /// The "nothing to show yet" snapshot - signed out, or before first refresh.
     static let empty = WidgetUsageSnapshot(
         balancePercent: nil,
+        balanceUSD: nil,
         hourPercent: nil,
         weeklyPercent: nil,
         monthlyPercent: nil,

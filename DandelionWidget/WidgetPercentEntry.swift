@@ -14,8 +14,19 @@ struct WidgetPercentEntry: TimelineEntry {
     /// 0...100; `nil` maps to an empty 0% gauge (signed out / no data yet).
     let percent: Double?
     let isHealthy: Bool
+    /// Optional override for the centre label - the Balance widget uses
+    /// this to show the raw USD balance instead of the percent. `nil`
+    /// means fall back to formatting `progress` as a percentage.
+    let valueLabel: String?
 
     var progress: Double { (percent ?? 0) / 100 }
+
+    init(date: Date, percent: Double?, isHealthy: Bool, valueLabel: String? = nil) {
+        self.date = date
+        self.percent = percent
+        self.isHealthy = isHealthy
+        self.valueLabel = valueLabel
+    }
 }
 
 /// One shared TimelineProvider implementation, parametrized per metric via
@@ -29,15 +40,21 @@ struct PercentTimelineProvider: TimelineProvider {
 
     let percentKeyPath: KeyPath<WidgetUsageSnapshot, Double?>
     let healthKeyPath: KeyPath<WidgetUsageSnapshot, Bool>
+    /// Optional closure to derive a custom centre label from the snapshot
+    /// (e.g. format `balanceUSD` as a dollar string). Defaults to nil -
+    /// other widgets use the default percent label.
+    let valueLabel: ((WidgetUsageSnapshot) -> String?)?
     let store: WidgetSnapshotStore
 
     init(
         percentKeyPath: KeyPath<WidgetUsageSnapshot, Double?>,
         healthKeyPath: KeyPath<WidgetUsageSnapshot, Bool>,
+        valueLabel: ((WidgetUsageSnapshot) -> String?)? = nil,
         store: WidgetSnapshotStore = WidgetSnapshotStore()
     ) {
         self.percentKeyPath = percentKeyPath
         self.healthKeyPath = healthKeyPath
+        self.valueLabel = valueLabel
         self.store = store
     }
 
@@ -62,7 +79,8 @@ struct PercentTimelineProvider: TimelineProvider {
         return WidgetPercentEntry(
             date: .now,
             percent: snapshot[keyPath: percentKeyPath],
-            isHealthy: snapshot[keyPath: healthKeyPath]
+            isHealthy: snapshot[keyPath: healthKeyPath],
+            valueLabel: valueLabel?(snapshot)
         )
     }
 }

@@ -98,6 +98,7 @@ final class RefreshCoordinator {
 
         if case .loaded(let balance) = zenBalanceViewModel.state {
             snapshot.balancePercent = balance.progressFraction * 100
+            snapshot.balanceUSD = balance.currentUSD
             snapshot.isBalanceHealthy = balance.isHealthy
         }
 
