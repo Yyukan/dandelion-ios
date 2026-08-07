@@ -2,13 +2,13 @@
 //  LockScreenGaugeView.swift
 //  DandelionWidget
 //
-//  Native accessoryCircular ring gauge - the correct primitive on the Lock
-//  Screen, since WidgetKit renders complications through its own
+//  Native `accessoryCircular` ring gauge - the correct primitive on the
+//  Lock Screen, since WidgetKit renders complications through its own
 //  tinted/monochrome pipeline rather than a custom Canvas (unlike
-//  RingGaugeView in the main app). Shows only the percentage - no other
-//  labels/captions - via the Gauge's currentValueLabel, since
-//  accessoryCircularCapacity never renders a value on its own unless one is
-//  explicitly supplied.
+//  RingGaugeView, which is used off-Lock-Screen). The centre label is
+//  supplied via the Gauge's currentValueLabel, since
+//  accessoryCircularCapacity never renders a value on its own unless one
+//  is explicitly provided.
 //
 
 import SwiftUI

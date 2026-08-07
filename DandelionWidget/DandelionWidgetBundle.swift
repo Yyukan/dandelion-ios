@@ -2,8 +2,9 @@
 //  DandelionWidgetBundle.swift
 //  DandelionWidget
 //
-//  Widget extension entry point - combines the 4 independently-addable
-//  Lock Screen widgets (Balance, Hour/Weekly/Monthly limit) into one bundle.
+//  Widget extension entry point - combines the four independently-addable
+//  Lock Screen complications (Balance, Hour, Weekly, Monthly limit) and
+//  the home-screen Dashboard widget into one bundle.
 //
 
 import WidgetKit
@@ -16,5 +17,6 @@ struct DandelionWidgetBundle: WidgetBundle {
         HourLimitWidget()
         WeeklyLimitWidget()
         MonthlyLimitWidget()
+        DashboardWidget()
     }
 }
