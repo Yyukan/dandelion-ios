@@ -79,6 +79,6 @@ struct DashboardView: View {
 
     private func percentText(_ percent: Double?) -> String {
         guard let percent else { return "—" }
-        return "\(Int(percent.rounded()))%"
+        return String(format: "%.1f%%", percent)
     }
 }

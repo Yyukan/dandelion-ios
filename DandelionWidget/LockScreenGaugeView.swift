@@ -35,7 +35,7 @@ struct LockScreenGaugeView: View {
                     .minimumScaleFactor(0.6)
                     .lineLimit(1)
             } else {
-                Text(clampedProgress, format: .percent.precision(.fractionLength(0)))
+                Text(clampedProgress, format: .percent.precision(.fractionLength(1)))
             }
         }
         .gaugeStyle(.accessoryCircularCapacity)

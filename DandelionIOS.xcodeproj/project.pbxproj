@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		0E1287AC2CFA7479E2233380 /* ModelCatalogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62281D23FCD83876A24B347 /* ModelCatalogViewModel.swift */; };
 		0FEAD14DF1BD485E5A8B0909 /* ModelCatalogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356F65547D0951AFCC8D7798 /* ModelCatalogView.swift */; };
-		17D0B317E071875C6A28C15A /* DandelionWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 70F170DABB6A4F96079D2C35 /* DandelionWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		17D0B317E071875C6A28C15A /* DandelionWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 70F170DABB6A4F96079D2C35 /* DandelionWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1F8412D4112A43D89766A1EF /* CatalogModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC280C274092A54FD13BA4 /* CatalogModel.swift */; };
 		24195BABF24AB06371F7D03A /* MonthlyLimitWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BD2830B0FBEB0E6BFF3AB7 /* MonthlyLimitWidget.swift */; };
 		2D0DDD9FF931C24ACFB47F12 /* RingGaugeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2890ACA05C5CB9179D48442 /* RingGaugeView.swift */; };
@@ -67,7 +67,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				17D0B317E071875C6A28C15A /* DandelionWidget.appex in Embed Foundation Extensions */,
+				17D0B317E071875C6A28C15A /* DandelionWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -92,7 +92,7 @@
 		6AA2051E6BACA3F0B02A8DE8 /* DandelionWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DandelionWidget.entitlements; sourceTree = "<group>"; };
 		6D9A8E2246007C34381A5975 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6FDA8A4D9E9A4FEDF5359FC4 /* UsageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageService.swift; sourceTree = "<group>"; };
-		70F170DABB6A4F96079D2C35 /* DandelionWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DandelionWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		70F170DABB6A4F96079D2C35 /* DandelionWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = DandelionWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		73A1D9F927C9B85345F089E7 /* ZenBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenBalanceViewModel.swift; sourceTree = "<group>"; };
 		78088B538795215BF708C654 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		78B042390B2F150FE765492B /* ZenBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenBalance.swift; sourceTree = "<group>"; };
@@ -116,7 +116,7 @@
 		E4ECD3179BD6B2C29A283398 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F6D4D3A352ED849DA7899A9B /* WidgetPercentEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPercentEntry.swift; sourceTree = "<group>"; };
 		FC357FC89A2A3C252AC7469A /* GoUsageWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoUsageWindow.swift; sourceTree = "<group>"; };
-		FD064E0B9E374B620DB98CE3 /* DandelionIOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DandelionIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FD064E0B9E374B620DB98CE3 /* DandelionIOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DandelionIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -183,7 +183,7 @@
 			isa = PBXGroup;
 			children = (
 				FD064E0B9E374B620DB98CE3 /* DandelionIOS.app */,
-				70F170DABB6A4F96079D2C35 /* DandelionWidget.appex */,
+				70F170DABB6A4F96079D2C35 /* DandelionWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -269,7 +269,7 @@
 			packageProductDependencies = (
 			);
 			productName = DandelionWidgetExtension;
-			productReference = 70F170DABB6A4F96079D2C35 /* DandelionWidget.appex */;
+			productReference = 70F170DABB6A4F96079D2C35 /* DandelionWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -391,7 +391,6 @@
 				CODE_SIGN_ENTITLEMENTS = DandelionWidget/DandelionWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = G6LUHT349V;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = DandelionWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -540,7 +539,6 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = G6LUHT349V;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = DandelionIOS/Info.plist;
@@ -564,7 +562,6 @@
 				CODE_SIGN_ENTITLEMENTS = DandelionWidget/DandelionWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = G6LUHT349V;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = DandelionWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -590,7 +587,6 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = G6LUHT349V;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = DandelionIOS/Info.plist;
