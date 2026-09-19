@@ -394,7 +394,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = DandelionWidget/DandelionWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = DandelionWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -403,7 +403,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = nl.ostconsultancy.DandelionIOS.DandelionWidget;
 				PRODUCT_NAME = DandelionWidget;
 				SDKROOT = iphoneos;
@@ -542,7 +542,7 @@
 				CODE_SIGN_ENTITLEMENTS = DandelionIOS/DandelionIOS.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = DandelionIOS/Info.plist;
@@ -551,7 +551,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = nl.ostconsultancy.DandelionIOS;
 				PRODUCT_NAME = DandelionIOS;
 				SDKROOT = iphoneos;
@@ -565,7 +565,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = DandelionWidget/DandelionWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = DandelionWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -574,7 +574,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = nl.ostconsultancy.DandelionIOS.DandelionWidget;
 				PRODUCT_NAME = DandelionWidget;
 				SDKROOT = iphoneos;
@@ -590,7 +590,7 @@
 				CODE_SIGN_ENTITLEMENTS = DandelionIOS/DandelionIOS.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = DandelionIOS/Info.plist;
@@ -599,7 +599,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = nl.ostconsultancy.DandelionIOS;
 				PRODUCT_NAME = DandelionIOS;
 				SDKROOT = iphoneos;
