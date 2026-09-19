@@ -18,7 +18,10 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showSignIn = false
     @State private var goAPIKey = ""
-    @State private var hasGoAPIKey = false
+    /// First characters of the stored key, so it's obvious one is saved;
+    /// `nil` when no key is stored, in which case nothing is shown.
+    @State private var storedKeyPrefix: String?
+    @FocusState private var keyFieldFocused: Bool
 
     private let goAPIKeyStore = GoAPIKeyStore()
 
@@ -35,17 +38,12 @@ struct SettingsView: View {
             .foregroundStyle(TerminalTheme.Colors.textPrimary)
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                }
-            }
             .sheet(isPresented: $showSignIn) {
                 SignInWebView(url: model.authService.signInURL) { cookieValue in
                     Task { await model.finishSignIn(cookieValue: cookieValue) }
                 }
             }
-            .task { hasGoAPIKey = goAPIKeyStore.load() != nil }
+            .task { refreshStoredKey() }
         }
     }
 
@@ -77,34 +75,48 @@ struct SettingsView: View {
 
     private var goKeySection: some View {
         Section("OpenCode Go") {
-            SecureField("API key", text: $goAPIKey)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-
-            Button("Save Key", action: saveGoAPIKey)
-                .disabled(goAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-
-            if hasGoAPIKey {
+            if let storedKeyPrefix {
+                LabeledContent("Saved key", value: "\(storedKeyPrefix)…")
                 Button("Remove Key", role: .destructive, action: removeGoAPIKey)
             }
 
-            Text("Go usage needs an API key; create one at opencode.ai/docs/go.")
+            SecureField(storedKeyPrefix == nil ? "API key" : "Replace key", text: $goAPIKey)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .focused($keyFieldFocused)
+                .submitLabel(.done)
+                .onSubmit(saveGoAPIKey)
+                // Save on focus loss as well, so a key typed but never
+                // submitted isn't silently dropped when the sheet closes.
+                .onChange(of: keyFieldFocused) { _, isFocused in
+                    if !isFocused { saveGoAPIKey() }
+                }
+
+            Text("Type or paste the key and press Done to save it. Go usage needs one; create it at opencode.ai/docs/go.")
                 .font(TerminalTheme.Fonts.caption)
                 .foregroundStyle(TerminalTheme.Colors.textSecondary)
         }
     }
 
     private func saveGoAPIKey() {
-        goAPIKeyStore.save(goAPIKey)
+        let key = goAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else { return }
+        goAPIKeyStore.save(key)
         goAPIKey = ""
-        hasGoAPIKey = goAPIKeyStore.load() != nil
+        refreshStoredKey()
         Task { await model.refreshCoordinator.refreshNow() }
     }
 
     private func removeGoAPIKey() {
         goAPIKeyStore.clear()
-        hasGoAPIKey = false
+        refreshStoredKey()
         Task { await model.refreshCoordinator.refreshNow() }
+    }
+
+    /// Mirrors the keychain into `storedKeyPrefix` - first 10 characters only,
+    /// never the whole key.
+    private func refreshStoredKey() {
+        storedKeyPrefix = goAPIKeyStore.load().map { String($0.prefix(10)) }
     }
 
     private var refreshSection: some View {
