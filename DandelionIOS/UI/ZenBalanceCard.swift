@@ -3,9 +3,9 @@
 //  Dandelion
 //
 //  Live Zen balance ring, auto-reload threshold and monthly limit info, fed
-//  by the session cookie captured through the in-app OpenCode sign-in - with
-//  a graceful fallback state (with a Sign In button) when no cookie exists
-//  yet or the private endpoint fails.
+//  by the console session cookie captured through the in-app OpenCode sign-in
+//  (https://opencode.ai/console/) - with a graceful fallback state (with a
+//  Sign In button) when no cookie exists yet or the console API fails.
 //
 
 import SwiftUI
@@ -70,8 +70,8 @@ struct ZenBalanceCard: View {
     }
 }
 
-/// Shown when no session cookie has been captured yet - never blocks the
-/// rest of the dashboard, just offers the in-app sign-in.
+/// Shown when no console session cookie has been captured yet - never blocks
+/// the rest of the dashboard, just offers the in-app sign-in.
 struct SignInPromptView: View {
     var title: String
     var onSignIn: () -> Void
@@ -82,7 +82,7 @@ struct SignInPromptView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(TerminalTheme.Fonts.body.weight(.semibold))
-                Text("Sign in to your OpenCode account to see live data.")
+                Text("Sign in to the OpenCode console to see live data.")
                     .font(TerminalTheme.Fonts.caption)
                     .foregroundStyle(TerminalTheme.Colors.textSecondary)
                 Button("Sign In", action: onSignIn)
@@ -93,8 +93,8 @@ struct SignInPromptView: View {
     }
 }
 
-/// Shown when a cookie was found but the endpoint no longer recognizes it -
-/// most likely the OpenCode session has expired and needs a fresh sign-in.
+/// Shown when a cookie was found but the console no longer recognizes it -
+/// most likely the console session has expired and needs a fresh sign-in.
 private struct SessionExpiredStateView: View {
     var onSignIn: () -> Void
 
@@ -104,7 +104,7 @@ private struct SessionExpiredStateView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Session expired")
                     .font(TerminalTheme.Fonts.body.weight(.semibold))
-                Text("Please sign in again to refresh live data.")
+                Text("Console session expired - sign in again, then refresh.")
                     .font(TerminalTheme.Fonts.caption)
                     .foregroundStyle(TerminalTheme.Colors.textSecondary)
                 Button("Sign In", action: onSignIn)

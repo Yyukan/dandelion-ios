@@ -9,6 +9,10 @@
 //  the app's own WKWebsiteDataStore.default() - the same store the login
 //  page's cookies land in, and the same one this reads back from.
 //
+//  Signs in at https://opencode.ai/console/ (the 2026-09 console rewrite;
+//  the old dashboard pages now redirect there) and captures the resulting
+//  `__Host-console_session` cookie.
+//
 //  An ASWebAuthenticationSession was tried first, since its non-ephemeral
 //  mode advertises sharing cookies "with the user's normal browser session" -
 //  but that shared jar turned out to be Safari's own data store, which is
@@ -23,7 +27,7 @@ import WidgetKit
 @MainActor
 @Observable
 final class SessionAuthService {
-    let signInURL = URL(string: "https://opencode.ai/zen")!
+    let signInURL = URL(string: "https://opencode.ai/console/")!
 
     private let cookieStore: SessionCookieStore
     private let widgetSnapshotStore: WidgetSnapshotStore
@@ -43,8 +47,8 @@ final class SessionAuthService {
         self.isSignedIn = cookieStore.load() != nil
     }
 
-    /// Called by `SignInWebView` once it observes the "auth" cookie appear
-    /// in its (shared, `.default()`) website data store.
+    /// Called by `SignInWebView` once it observes the `__Host-console_session`
+    /// cookie appear in its (shared, `.default()`) website data store.
     func completeSignIn(cookieValue: String) {
         cookieStore.save(cookieValue)
         isSignedIn = true

@@ -2,14 +2,14 @@
 //  ZenBalance.swift
 //  Dandelion
 //
-//  Live Zen pay-as-you-go balance, as surfaced by the private workspace
-//  billing page (no public REST API exposes this - see UsageService).
+//  Live Zen pay-as-you-go balance, as surfaced by the OpenCode console's
+//  billing JSON API (no public REST API exposes this - see UsageService).
 //
 
 import Foundation
 
 /// Current Zen account balance plus auto-reload/monthly-limit context, all
-/// read straight from the OpenCode Zen web dashboard.
+/// read straight from the OpenCode console API.
 struct ZenBalance: Sendable, Equatable {
     /// Current pay-as-you-go credit balance, in US dollars.
     let currentUSD: Double
@@ -21,7 +21,10 @@ struct ZenBalance: Sendable, Equatable {
     let autoReloadAmountUSD: Double
     /// Optional monthly spend cap the user configured on the workspace.
     let monthlyLimitUSD: Double?
-    /// Spend so far in the current calendar month, in US dollars.
+    /// Spend so far in the current calendar month, in US dollars. The console
+    /// billing payload no longer reports a month-to-date figure, so this is
+    /// currently always `nil` - kept so the card can show it again if that
+    /// ever comes back, without substituting an unrelated 30-day number.
     let monthlyUsageUSD: Double?
 
     /// Balance as a 0...1 fraction of its reference ceiling - the monthly

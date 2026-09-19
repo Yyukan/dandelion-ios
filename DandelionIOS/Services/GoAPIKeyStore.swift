@@ -1,30 +1,20 @@
 //
-//  SessionCookieStore.swift
+//  GoAPIKeyStore.swift
 //  Dandelion
 //
-//  Stores the user's opencode.ai console session cookie in the iOS Keychain
-//  (never plaintext). This is the only place the cookie lives: it's captured
-//  once via SessionAuthService's in-app sign-in and persisted here for every
-//  future launch.
-//
-//  The 2026-09 console rewrite replaced the old `auth` cookie with
-//  `__Host-console_session` (HttpOnly, Secure, Path=/). Any value stored by
-//  an older build is simply rejected by the console API, which surfaces as
-//  the Zen card's "session expired" state.
+//  Stores the user's OpenCode Go API key in the iOS Keychain (never
+//  plaintext). iOS is sandboxed and cannot read OpenCode's local
+//  `~/.local/share/opencode/auth.json`, so - unlike the macOS app, which
+//  auto-discovers the key there - the key is pasted once in Settings and
+//  read back by `UsageService` for every Go usage fetch.
 //
 
 import Foundation
 import Security
 
-/// The opencode.ai `__Host-console_session` cookie value, as consumed by
-/// `UsageService`.
-struct SessionCookie: Sendable, Equatable {
-    let value: String
-}
-
-struct SessionCookieStore: Sendable {
+struct GoAPIKeyStore: Sendable {
     private static let service = "nl.ostconsultancy.Dandelion"
-    private static let account = "opencode-session-cookie"
+    private static let account = "opencode-go-api-key"
 
     func load() -> String? {
         let query: [String: Any] = [

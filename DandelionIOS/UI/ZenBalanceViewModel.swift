@@ -2,10 +2,10 @@
 //  ZenBalanceViewModel.swift
 //  Dandelion
 //
-//  Drives ZenBalanceCard: reads the session cookie captured by
-//  SessionAuthService's in-app sign-in and uses it to fetch the live Zen
-//  balance, degrading gracefully when no cookie exists yet or the private
-//  endpoint fails.
+//  Drives ZenBalanceCard: reads the `__Host-console_session` cookie captured
+//  by SessionAuthService's in-app sign-in and uses it against the OpenCode
+//  console's billing JSON API, degrading gracefully when no cookie exists yet
+//  or the endpoint fails.
 //
 
 import Foundation
@@ -18,8 +18,9 @@ enum ZenBalanceState: Equatable {
     /// No session cookie has been captured yet - show "—" + a Sign In
     /// button instead of crashing or blocking the rest of the UI.
     case unavailable
-    /// A cookie was found, but the endpoint no longer recognizes it - most
-    /// likely the OpenCode session has expired and needs a fresh sign-in.
+    /// A cookie was found, but the console rejected it or its payload was
+    /// unusable - most likely the console session has expired and needs a
+    /// fresh sign-in.
     case sessionExpired
 }
 
@@ -60,12 +61,12 @@ final class ZenBalanceViewModel {
             state = .loaded(balance)
         } catch let error as UsageServiceError {
             switch error {
-            case .workspaceNotFound, .balanceNotFound:
-                // A cookie was found, but the authenticated page couldn't be
-                // parsed - the most likely cause is that the OpenCode
-                // session behind it has since expired.
+            case .workspaceNotFound, .balanceNotFound, .sessionExpired:
+                // A cookie was found, but the console rejected it or its
+                // payload was unusable - the most likely cause is that the
+                // console session behind it has since expired.
                 state = .sessionExpired
-            case .goUsageNotFound, .network:
+            case .goUsageNotFound, .missingGoAPIKey, .network:
                 state = .unavailable
             }
         } catch {

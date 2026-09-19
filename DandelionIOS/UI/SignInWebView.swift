@@ -2,19 +2,25 @@
 //  SignInWebView.swift
 //  Dandelion
 //
-//  Hosts the opencode.ai sign-in page in a WKWebView backed by the app's own
-//  WKWebsiteDataStore.default() - unlike ASWebAuthenticationSession, whose
-//  non-ephemeral cookie jar is shared with Safari rather than with the host
-//  app's own web view storage, cookies set here land exactly where
-//  SessionAuthService reads them back from. Normally auto-dismisses the
-//  moment the "auth" cookie for opencode.ai appears, but also offers a
-//  manual Done button - as a visible way out if the page doesn't trigger a
-//  cookie-store notification promptly, Done re-checks the same store once
-//  more before closing.
+//  Hosts the OpenCode console sign-in page (https://opencode.ai/console/) in
+//  a WKWebView backed by the app's own WKWebsiteDataStore.default() - unlike
+//  ASWebAuthenticationSession, whose non-ephemeral cookie jar is shared with
+//  Safari rather than with the host app's own web view storage, cookies set
+//  here land exactly where SessionAuthService reads them back from. Normally
+//  auto-dismisses the moment the `__Host-console_session` cookie for
+//  opencode.ai appears, but also offers a manual Done button - as a visible
+//  way out if the page doesn't trigger a cookie-store notification promptly,
+//  Done re-checks the same store once more before closing.
+//
+//  GitHub is the reliable sign-in here: Google blocks OAuth inside embedded
+//  web views, so the footer nudges towards GitHub.
 //
 
 import SwiftUI
 import WebKit
+
+/// The console's session cookie, as set by opencode.ai after sign-in.
+private let consoleSessionCookieName = "__Host-console_session"
 
 struct SignInWebView: View {
     let url: URL
@@ -27,6 +33,15 @@ struct SignInWebView: View {
             CookieWatchingWebView(url: url) { cookieValue in
                 onSignedIn(cookieValue)
                 dismiss()
+            }
+            .safeAreaInset(edge: .bottom) {
+                Text("Sign in with GitHub - Google may block OAuth inside this web view.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(.bar)
             }
             .navigationTitle("Sign In")
             .navigationBarTitleDisplayMode(.inline)
@@ -43,8 +58,10 @@ struct SignInWebView: View {
 
     private func finishAndDismiss() {
         WKWebsiteDataStore.default().httpCookieStore.getAllCookies { cookies in
-            if let authCookie = cookies.first(where: { $0.domain.hasSuffix("opencode.ai") && $0.name == "auth" }) {
-                onSignedIn(authCookie.value)
+            if let sessionCookie = cookies.first(where: {
+                $0.domain.hasSuffix("opencode.ai") && $0.name == consoleSessionCookieName
+            }) {
+                onSignedIn(sessionCookie.value)
             }
             dismiss()
         }
@@ -53,13 +70,13 @@ struct SignInWebView: View {
 
 /// UIKit bridge: a `WKWebView` whose website data store is the app's own
 /// `.default()` store, with a cookie-store observer that reports the
-/// opencode.ai "auth" cookie the instant it's set.
+/// opencode.ai console session cookie the instant it's set.
 private struct CookieWatchingWebView: UIViewRepresentable {
     let url: URL
-    var onAuthCookie: (String) -> Void
+    var onSessionCookie: (String) -> Void
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(onAuthCookie: onAuthCookie)
+        Coordinator(onSessionCookie: onSessionCookie)
     }
 
     func makeUIView(context: Context) -> WKWebView {
@@ -78,22 +95,24 @@ private struct CookieWatchingWebView: UIViewRepresentable {
     }
 
     final class Coordinator: NSObject, WKHTTPCookieStoreObserver {
-        private let onAuthCookie: (String) -> Void
+        private let onSessionCookie: (String) -> Void
         private var reported = false
 
-        init(onAuthCookie: @escaping (String) -> Void) {
-            self.onAuthCookie = onAuthCookie
+        init(onSessionCookie: @escaping (String) -> Void) {
+            self.onSessionCookie = onSessionCookie
         }
 
         func cookiesDidChange(in cookieStore: WKHTTPCookieStore) {
             guard !reported else { return }
             cookieStore.getAllCookies { [weak self] cookies in
                 guard let self, !self.reported,
-                      let authCookie = cookies.first(where: { $0.domain.hasSuffix("opencode.ai") && $0.name == "auth" })
+                      let sessionCookie = cookies.first(where: {
+                          $0.domain.hasSuffix("opencode.ai") && $0.name == consoleSessionCookieName
+                      })
                 else { return }
                 self.reported = true
                 Task { @MainActor in
-                    self.onAuthCookie(authCookie.value)
+                    self.onSessionCookie(sessionCookie.value)
                 }
             }
         }
@@ -101,5 +120,5 @@ private struct CookieWatchingWebView: UIViewRepresentable {
 }
 
 #Preview {
-    SignInWebView(url: URL(string: "https://opencode.ai/zen")!) { _ in }
+    SignInWebView(url: URL(string: "https://opencode.ai/console/")!) { _ in }
 }

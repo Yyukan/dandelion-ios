@@ -2,9 +2,12 @@
 //  SettingsView.swift
 //  Dandelion
 //
-//  OpenCode sign-in status + auto-refresh interval picker. iOS has no local
-//  auth.json or browser cookie jar to auto-discover, so signing in is a
-//  first-class, user-initiated action here (see SessionAuthService).
+//  OpenCode console sign-in status, the OpenCode Go API key, and the
+//  auto-refresh interval picker. iOS has no local auth.json or browser
+//  cookie jar to auto-discover, so both credentials are first-class,
+//  user-initiated actions here: the console session comes from an in-app
+//  WKWebView sign-in (see SessionAuthService), and the Go key is pasted
+//  into the SecureField below (see GoAPIKeyStore).
 //
 
 import SwiftUI
@@ -14,11 +17,16 @@ struct SettingsView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var showSignIn = false
+    @State private var goAPIKey = ""
+    @State private var hasGoAPIKey = false
+
+    private let goAPIKeyStore = GoAPIKeyStore()
 
     var body: some View {
         NavigationStack {
             Form {
                 accountSection
+                goKeySection
                 refreshSection
             }
             .scrollContentBackground(.hidden)
@@ -36,6 +44,7 @@ struct SettingsView: View {
                     Task { await model.finishSignIn(cookieValue: cookieValue) }
                 }
             }
+            .task { hasGoAPIKey = goAPIKeyStore.load() != nil }
         }
     }
 
@@ -50,7 +59,7 @@ struct SettingsView: View {
                     dismiss()
                 }
             } else {
-                Text("Sign in to see your live Zen balance and Go usage.")
+                Text("Sign in to the OpenCode console to see your live Zen balance.")
                     .font(TerminalTheme.Fonts.caption)
                     .foregroundStyle(TerminalTheme.Colors.textSecondary)
             }
@@ -58,7 +67,43 @@ struct SettingsView: View {
             Button(model.authService.isSignedIn ? "Sign In Again" : "Sign In") {
                 showSignIn = true
             }
+
+            Text("Sign in with GitHub - Google may block OAuth inside the app's web view.")
+                .font(TerminalTheme.Fonts.caption)
+                .foregroundStyle(TerminalTheme.Colors.textTertiary)
         }
+    }
+
+    private var goKeySection: some View {
+        Section("OpenCode Go") {
+            SecureField("API key", text: $goAPIKey)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+
+            Button("Save Key", action: saveGoAPIKey)
+                .disabled(goAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+            if hasGoAPIKey {
+                Button("Remove Key", role: .destructive, action: removeGoAPIKey)
+            }
+
+            Text("Go usage needs an API key; create one at opencode.ai/docs/go.")
+                .font(TerminalTheme.Fonts.caption)
+                .foregroundStyle(TerminalTheme.Colors.textSecondary)
+        }
+    }
+
+    private func saveGoAPIKey() {
+        goAPIKeyStore.save(goAPIKey)
+        goAPIKey = ""
+        hasGoAPIKey = goAPIKeyStore.load() != nil
+        Task { await model.refreshCoordinator.refreshNow() }
+    }
+
+    private func removeGoAPIKey() {
+        goAPIKeyStore.clear()
+        hasGoAPIKey = false
+        Task { await model.refreshCoordinator.refreshNow() }
     }
 
     private var refreshSection: some View {
