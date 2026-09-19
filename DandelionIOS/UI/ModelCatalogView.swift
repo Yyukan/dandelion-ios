@@ -2,8 +2,9 @@
 //  ModelCatalogView.swift
 //  Dandelion
 //
-//  Full, searchable Zen + Go model catalog with per-model input/output/cache
-//  pricing and context/output limits. There's no disconnected-state gate
+//  Full, searchable Zen + Go model catalog: per-model input/output pricing
+//  plus the Go-only 5h/weekly/monthly usage limits. There's no
+//  disconnected-state gate
 //  here - the catalog needs no local API key, so it always loads. Split into
 //  two independent views: ModelCatalogControls (static) and ModelCatalogList,
 //  which owns its own bounded ScrollView (mirroring the macOS status-bar
@@ -151,7 +152,11 @@ private struct CatalogModelRow: View {
     /// more compact than stacking them, and the slash reads like a ratio.
     private var priceStack: some View {
         Group {
-            if model.pricing.isFree {
+            if !model.pricing.isPublished {
+                // The docs don't price every model the API already serves.
+                Text("—")
+                    .foregroundStyle(TerminalTheme.Colors.textTertiary)
+            } else if model.pricing.isFree {
                 Text("Free")
                     .foregroundStyle(TerminalTheme.Colors.textTertiary)
             } else {
@@ -228,8 +233,9 @@ private struct CatalogModelRow: View {
     private static let maxUsageWeek = 80_000.0
     private static let maxUsageMonth = 160_000.0
 
-    private static func simplePrice(_ value: Double) -> String {
-        "$" + String(format: "%.2f", value)
+    private static func simplePrice(_ value: Double?) -> String {
+        guard let value else { return "—" }
+        return "$" + String(format: "%.2f", value)
     }
 
     private static func count(_ value: Int) -> String {
@@ -242,8 +248,8 @@ private struct CatalogModelRow: View {
     /// Colors a price on a log scale within the app's blue accent family
     /// (cyan for cheap, indigo for pricey) instead of a green-to-red scheme,
     /// so pricier models read as "hotter blue" rather than alarming.
-    private static func priceColor(_ value: Double, max: Double) -> Color {
-        guard value > 0 else { return TerminalTheme.Colors.textTertiary }
+    private static func priceColor(_ value: Double?, max: Double) -> Color {
+        guard let value, value > 0 else { return TerminalTheme.Colors.textTertiary }
         return blueGradient(min(1, log10(value + 1) / log10(max + 1)))
     }
 

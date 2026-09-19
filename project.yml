@@ -23,8 +23,8 @@ targets:
       path: DandelionIOS/Info.plist
       properties:
         CFBundleDisplayName: Dandelion
-        CFBundleShortVersionString: "0.1.0"
-        CFBundleVersion: "1"
+        CFBundleShortVersionString: "0.2.0"
+        CFBundleVersion: "2"
         CFBundleIconName: AppIcon
         NSHumanReadableCopyright: "Copyright © 2026 OST Consultancy"
         UILaunchScreen: {}
@@ -44,8 +44,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: nl.ostconsultancy.DandelionIOS
         PRODUCT_NAME: DandelionIOS
-        MARKETING_VERSION: "0.1.0"
-        CURRENT_PROJECT_VERSION: "1"
+        MARKETING_VERSION: "0.2.0"
+        CURRENT_PROJECT_VERSION: "2"
         GENERATE_INFOPLIST_FILE: NO
         SWIFT_EMIT_LOC_STRINGS: YES
         ENABLE_PREVIEWS: YES
@@ -65,8 +65,8 @@ targets:
       path: DandelionWidget/Info.plist
       properties:
         CFBundleDisplayName: DandelionWidget
-        CFBundleShortVersionString: "0.1.0"
-        CFBundleVersion: "1"
+        CFBundleShortVersionString: "0.2.0"
+        CFBundleVersion: "2"
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     entitlements:
@@ -78,8 +78,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: nl.ostconsultancy.DandelionIOS.DandelionWidget
         PRODUCT_NAME: DandelionWidget
-        MARKETING_VERSION: "0.1.0"
-        CURRENT_PROJECT_VERSION: "1"
+        MARKETING_VERSION: "0.2.0"
+        CURRENT_PROJECT_VERSION: "2"
         GENERATE_INFOPLIST_FILE: NO
         SWIFT_EMIT_LOC_STRINGS: YES
         CODE_SIGN_STYLE: Automatic

@@ -22,7 +22,7 @@ Note: the project/target/scheme are named `DandelionIOS`, but the app itself sti
 ## Conventions
 
 - No local API key/auth.json discovery and no cross-app browser cookie discovery exist here - both are impossible inside the iOS sandbox. See `DandelionIOS/Services/SessionAuthService.swift` for the replacement: a one-time sign-in through an in-app `WKWebView` (`DandelionIOS/UI/SignInWebView.swift`) backed by the app's own `WKWebsiteDataStore.default()`, which auto-detects the resulting cookie via a `WKHTTPCookieStoreObserver`. (An `ASWebAuthenticationSession`-based approach was tried first, but its non-ephemeral cookie jar is shared with Safari, not with the host app's own `WKWebsiteDataStore` - so the captured cookie was never actually observable here.)
-- The model catalog (`ModelCatalogService`) needs no credential at all - `models.dev`'s catalog is public - so it always loads.
+- The model catalog (`ModelCatalogService`) needs no credential at all - OpenCode's model endpoints and docs pages are public - so it always loads.
 - Ring/circle gauges (`RingGaugeView`) size via `TerminalTheme.Metrics.primaryRingSize`/`secondaryRingSize`, not per-call-site magic numbers - keep new call sites consistent with that.
 - Every live-data widget (Zen balance, Go usage) must degrade gracefully to an `unavailable`/`sessionExpired` fallback state (with a Sign In button) instead of crashing when no session cookie exists yet or the private endpoint fails - never assume the endpoint succeeds.
 - Follow the existing SwiftUI file layout: header doc comment block, then `import SwiftUI`, main view struct, private helper views, `#Preview` at the bottom.
