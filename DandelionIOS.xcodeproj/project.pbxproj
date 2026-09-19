@@ -28,6 +28,7 @@
 		6870CCB472A27CC31DAC2D3A /* ZenBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73A1D9F927C9B85345F089E7 /* ZenBalanceViewModel.swift */; };
 		70C0448E6738DE7DB2D9B946 /* DashboardWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAAF572662DF1917AB7E8DBE /* DashboardWidget.swift */; };
 		79C64CA9619F89C9E3E87163 /* WeeklyLimitWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88022B767F0C1C25E9CC62DB /* WeeklyLimitWidget.swift */; };
+		7D47AC58C2A6A046AEE2383B /* GoAPIKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD2C4262F650254183F1C52 /* GoAPIKeyStore.swift */; };
 		9004D9A8CDDA999844AFA9A3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C409EBB5F65C4CF243486FE /* ContentView.swift */; };
 		9009EEE155BCECE9E2461826 /* ModelVendor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50B3E0A8D2E84A049B919C4D /* ModelVendor.swift */; };
 		990E37291357AE66B06B22F0 /* SessionCookieStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1909A032844296710309A0EB /* SessionCookieStore.swift */; };
@@ -78,6 +79,7 @@
 		01A6F8279F80A015268AE222 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1909A032844296710309A0EB /* SessionCookieStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCookieStore.swift; sourceTree = "<group>"; };
 		2398A3747A63CED7F5D21EE4 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		2BD2C4262F650254183F1C52 /* GoAPIKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoAPIKeyStore.swift; sourceTree = "<group>"; };
 		356F65547D0951AFCC8D7798 /* ModelCatalogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelCatalogView.swift; sourceTree = "<group>"; };
 		391300F9D34D9A89FF7D2AAD /* BalanceWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceWidget.swift; sourceTree = "<group>"; };
 		3A1E20F66BED4B9FEFA8127F /* LockScreenGaugeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenGaugeView.swift; sourceTree = "<group>"; };
@@ -203,6 +205,7 @@
 			isa = PBXGroup;
 			children = (
 				5C310F2B63736D6691613CF5 /* AppSettings.swift */,
+				2BD2C4262F650254183F1C52 /* GoAPIKeyStore.swift */,
 				9EFA30DC49971442D0737C8D /* ModelCatalogService.swift */,
 				D222746F4A9F3C51FDD215ED /* RefreshCoordinator.swift */,
 				A2BFAA5231E9D3921961923B /* SessionAuthService.swift */,
@@ -351,6 +354,7 @@
 				9004D9A8CDDA999844AFA9A3 /* ContentView.swift in Sources */,
 				AD810FDF2239246A1B805D3B /* DandelionApp.swift in Sources */,
 				FCB96E6574797FF584D57DBA /* DashboardView.swift in Sources */,
+				7D47AC58C2A6A046AEE2383B /* GoAPIKeyStore.swift in Sources */,
 				4412B1908B10800176B35292 /* GoUsageCard.swift in Sources */,
 				D8E7A69724BFEB0AE6C77B5A /* GoUsageViewModel.swift in Sources */,
 				593C8835F2E1CDE12C9CB38F /* GoUsageWindow.swift in Sources */,

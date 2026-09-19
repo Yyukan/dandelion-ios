@@ -32,8 +32,9 @@ final class AppSettings {
         didSet { defaults.set(autoRefreshInterval, forKey: Keys.autoRefreshInterval) }
     }
 
-    /// Fallback for when the Zen page's embedded `wrk_...` token can't be
-    /// found (e.g. a future markup change); empty means "auto-discover".
+    /// Fallback for when the console's org discovery (`/console/api/orgs`)
+    /// can't resolve the account's org id (e.g. a future API change); empty
+    /// means "auto-discover".
     var manualWorkspaceID: String {
         didSet { defaults.set(manualWorkspaceID, forKey: Keys.manualWorkspaceID) }
     }

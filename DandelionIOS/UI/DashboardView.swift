@@ -29,7 +29,7 @@ struct DashboardView: View {
                 .onTapGesture { showSettings = true }
 
                 CardContainer {
-                    GoUsageCard(viewModel: model.goUsageViewModel, onSignIn: signIn)
+                    GoUsageCard(viewModel: model.goUsageViewModel)
                 }
                 .contentShape(Rectangle())
                 .onTapGesture { showSettings = true }

@@ -1,6 +1,6 @@
 # dandelion-ios
 
-A native iOS app for **OpenCode Zen** (pay-as-you-go) and **OpenCode Go** (subscription) - live balance/usage plus the full model catalog, no browser or CLI required. iOS counterpart to the [macOS menu-bar app](https://github.com/Yyukan/dandelion).
+A native iOS app for **OpenCode Zen** (pay-as-you-go) and **OpenCode Go** (subscription) - live balance/usage plus the full model catalog. iOS counterpart to the [macOS menu-bar app](https://github.com/Yyukan/dandelion).
 
 ![platform](https://img.shields.io/badge/platform-iOS%2017%2B-lightgrey)
 ![swift](https://img.shields.io/badge/swift-6.0%2B-orange)
@@ -25,6 +25,11 @@ A native iOS app for **OpenCode Zen** (pay-as-you-go) and **OpenCode Go** (subsc
 - iOS 17+, Xcode 16+
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen): `brew install xcodegen`
 - An Apple ID in Xcode to sign the app for your device (free personal team is enough)
+
+## Credentials
+
+- **Zen balance** — sign in to the [OpenCode console](https://opencode.ai/console/) once, from the app's in-app browser (Settings → Sign In). Use **GitHub**: Google blocks OAuth inside embedded web views.
+- **Go usage** — create an API key at [opencode.ai/docs/go](https://opencode.ai/docs/go) and paste it into Settings. Both credentials are stored in the iOS Keychain only.
 
 ## Running locally
 

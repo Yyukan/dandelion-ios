@@ -3,16 +3,15 @@
 //  Dandelion
 //
 //  Live 5h/weekly/monthly Go usage-window ring gauges with reset countdowns,
-//  reusing the same session-cookie storage as ZenBalanceCard - with the same
-//  graceful fallback state (with a Sign In button) when no cookie exists yet
-//  or the private endpoint fails.
+//  read from OpenCode's official usage API with the API key saved in Settings
+//  (no browser session involved) - with the same graceful fallback state when
+//  no key is saved or the endpoint fails.
 //
 
 import SwiftUI
 
 struct GoUsageCard: View {
     @Bindable var viewModel: GoUsageViewModel
-    var onSignIn: () -> Void = {}
 
     var body: some View {
         VStack(alignment: .leading, spacing: TerminalTheme.Spacing.sm) {
@@ -31,9 +30,9 @@ struct GoUsageCard: View {
             case .loaded(let summary):
                 loadedContent(summary)
             case .unavailable:
-                SignInPromptView(title: "Usage unavailable", onSignIn: onSignIn)
+                MissingKeyStateView()
             case .sessionExpired:
-                SessionExpiredStateView(onSignIn: onSignIn)
+                SessionExpiredStateView()
             }
         }
         .task { await viewModel.refresh() }
@@ -56,12 +55,6 @@ struct GoUsageCard: View {
                 usageRing(summary.monthly)
             }
             .frame(maxWidth: .infinity, alignment: .center)
-
-            if summary.isUsingZenBalance {
-                Text("Go limits reached - now billing from Zen balance")
-                    .font(TerminalTheme.Fonts.caption)
-                    .foregroundStyle(TerminalTheme.Colors.warning)
-            }
         }
     }
 
@@ -96,21 +89,39 @@ struct GoUsageCard: View {
     }
 }
 
-/// Shown when a cookie was found but the endpoint no longer recognizes it -
-/// most likely the OpenCode session has expired and needs a fresh sign-in.
-private struct SessionExpiredStateView: View {
-    var onSignIn: () -> Void
-
+/// Shown when no Go API key has been saved yet - never blocks the rest of
+/// the dashboard, just points at where to create one and paste it.
+private struct MissingKeyStateView: View {
     var body: some View {
         HStack(spacing: TerminalTheme.Spacing.sm) {
-            RingGaugeView(progress: 0, valueText: "—", label: "—", tint: TerminalTheme.Colors.textTertiary, size: TerminalTheme.Metrics.secondaryRingSize, lineWidth: 3)
+            RingGaugeView(progress: 0, valueText: "—", label: "Usage", tint: TerminalTheme.Colors.textTertiary, size: TerminalTheme.Metrics.secondaryRingSize, lineWidth: 3)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Usage unavailable")
+                    .font(TerminalTheme.Fonts.body.weight(.semibold))
+                Text("No OpenCode Go key found - add it in Settings, then refresh.")
+                    .font(TerminalTheme.Fonts.caption)
+                    .foregroundStyle(TerminalTheme.Colors.textSecondary)
+                Link("Go setup", destination: URL(string: "https://opencode.ai/docs/go")!)
+                    .font(TerminalTheme.Fonts.caption)
+                    .foregroundStyle(TerminalTheme.Colors.accent)
+            }
+        }
+    }
+}
+
+/// Shown when a key was saved but the endpoint rejected it - the key was
+/// revoked or rotated and OpenCode Go needs reconnecting.
+private struct SessionExpiredStateView: View {
+    var body: some View {
+        HStack(spacing: TerminalTheme.Spacing.sm) {
+            RingGaugeView(progress: 0, valueText: "—", label: "Usage", tint: TerminalTheme.Colors.textTertiary, size: TerminalTheme.Metrics.secondaryRingSize, lineWidth: 3)
             VStack(alignment: .leading, spacing: 2) {
                 Text("Session expired")
                     .font(TerminalTheme.Fonts.body.weight(.semibold))
-                Text("Please sign in again to refresh live data.")
+                Text("Go API key rejected - reconnect OpenCode Go, then refresh.")
                     .font(TerminalTheme.Fonts.caption)
                     .foregroundStyle(TerminalTheme.Colors.textSecondary)
-                Button("Sign In", action: onSignIn)
+                Link("Go setup", destination: URL(string: "https://opencode.ai/docs/go")!)
                     .font(TerminalTheme.Fonts.caption)
                     .foregroundStyle(TerminalTheme.Colors.accent)
             }
@@ -119,7 +130,7 @@ private struct SessionExpiredStateView: View {
 }
 
 #Preview {
-    GoUsageCard(viewModel: GoUsageViewModel(appSettings: AppSettings()))
+    GoUsageCard(viewModel: GoUsageViewModel())
         .padding()
         .background(TerminalTheme.Colors.background)
 }

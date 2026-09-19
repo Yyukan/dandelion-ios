@@ -20,7 +20,7 @@ final class AppModel {
 
     init() {
         zenBalanceViewModel = ZenBalanceViewModel(appSettings: appSettings)
-        goUsageViewModel = GoUsageViewModel(appSettings: appSettings)
+        goUsageViewModel = GoUsageViewModel()
         refreshCoordinator = RefreshCoordinator(
             appSettings: appSettings,
             catalogViewModel: catalogViewModel,
@@ -29,10 +29,10 @@ final class AppModel {
         )
     }
 
-    /// Called once `SignInWebView` observes the opencode.ai "auth" cookie -
-    /// persists it, then immediately refreshes every card so the
-    /// newly-signed-in state shows live data without a second manual
-    /// pull-to-refresh.
+    /// Called once `SignInWebView` observes the opencode.ai
+    /// `__Host-console_session` cookie - persists it, then immediately
+    /// refreshes every card so the newly-signed-in state shows live data
+    /// without a second manual pull-to-refresh.
     func finishSignIn(cookieValue: String) async {
         authService.completeSignIn(cookieValue: cookieValue)
         await refreshCoordinator.refreshNow()
