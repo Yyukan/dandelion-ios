@@ -4,8 +4,8 @@
 //
 //  Maps a Zen model's `modelID` to the asset-catalog image name for its
 //  vendor's logo (see Assets.xcassets/vendor-*.imageset), so the catalog row
-//  can show a recognizable icon without the catalog itself carrying vendor
-//  metadata (models.dev doesn't expose one).
+//  can show a recognizable icon without the catalog itself carrying any
+//  vendor metadata.
 //
 
 import Foundation
