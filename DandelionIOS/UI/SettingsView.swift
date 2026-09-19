@@ -28,6 +28,7 @@ struct SettingsView: View {
                 accountSection
                 goKeySection
                 refreshSection
+                aboutSection
             }
             .scrollContentBackground(.hidden)
             .background(TerminalTheme.Colors.background)
@@ -132,6 +133,20 @@ struct SettingsView: View {
         case 3600: "1 hour"
         default: "\(Int(interval))s"
         }
+    }
+
+    private var aboutSection: some View {
+        Section("About") {
+            LabeledContent("Version", value: Self.versionLabel)
+        }
+    }
+
+    /// Version + build, read from the bundle so it always matches the release.
+    static var versionLabel: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "unknown"
+        guard let build = info?["CFBundleVersion"] as? String else { return version }
+        return "\(version) (\(build))"
     }
 }
 
