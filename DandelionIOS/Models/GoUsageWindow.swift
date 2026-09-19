@@ -18,12 +18,9 @@ struct GoUsageWindow: Sendable, Equatable {
     let isHealthy: Bool
 }
 
-/// The full set of Go usage windows for an account, plus whether the
-/// account has spilled over to Zen pay-as-you-go balance instead of
-/// counting against these windows - OpenCode's documented "Use balance" behavior.
+/// The full set of Go usage windows for an account.
 struct GoUsageSummary: Sendable, Equatable {
     let rolling5h: GoUsageWindow
     let weekly: GoUsageWindow
     let monthly: GoUsageWindow
-    let isUsingZenBalance: Bool
 }
