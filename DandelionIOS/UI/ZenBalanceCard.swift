@@ -3,16 +3,15 @@
 //  Dandelion
 //
 //  Live Zen balance ring, auto-reload threshold and monthly limit info, fed
-//  by the console session cookie captured through the in-app OpenCode sign-in
-//  (https://opencode.ai/console/) - with a graceful fallback state (with a
-//  Sign In button) when no cookie exists yet or the console API fails.
+//  by the console's billing API with the API key saved in Settings - with a
+//  graceful fallback state when no key exists yet, the key is rejected, or the
+//  request fails.
 //
 
 import SwiftUI
 
 struct ZenBalanceCard: View {
     @Bindable var viewModel: ZenBalanceViewModel
-    var onSignIn: () -> Void = {}
 
     var body: some View {
         VStack(alignment: .leading, spacing: TerminalTheme.Spacing.sm) {
@@ -31,10 +30,21 @@ struct ZenBalanceCard: View {
                     .frame(maxWidth: .infinity, alignment: .center)
             case .loaded(let balance):
                 loadedContent(balance)
+            case .needsKey:
+                FallbackStateView(
+                    title: "Balance unavailable",
+                    detail: "No API key saved. Tap this card to open Settings and paste one."
+                )
+            case .unauthorized:
+                FallbackStateView(
+                    title: "API key rejected",
+                    detail: "OpenCode refused the saved key. Replace it in Settings, then refresh."
+                )
             case .unavailable:
-                SignInPromptView(title: "Balance unavailable", onSignIn: onSignIn)
-            case .sessionExpired:
-                SessionExpiredStateView(onSignIn: onSignIn)
+                FallbackStateView(
+                    title: "Balance unavailable",
+                    detail: "Couldn't reach the console. Pull to refresh to try again."
+                )
             }
         }
         .task { await viewModel.refresh() }
@@ -70,11 +80,11 @@ struct ZenBalanceCard: View {
     }
 }
 
-/// Shown when no console session cookie has been captured yet - never blocks
-/// the rest of the dashboard, just offers the in-app sign-in.
-struct SignInPromptView: View {
+/// Shared fallback for the balance card: an empty gauge plus a one-line reason
+/// and what to do about it. Never blocks the rest of the dashboard.
+private struct FallbackStateView: View {
     var title: String
-    var onSignIn: () -> Void
+    var detail: String
 
     var body: some View {
         HStack(spacing: TerminalTheme.Spacing.sm) {
@@ -82,41 +92,16 @@ struct SignInPromptView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(TerminalTheme.Fonts.body.weight(.semibold))
-                Text("Sign in to the OpenCode console to see live data.")
+                Text(detail)
                     .font(TerminalTheme.Fonts.caption)
                     .foregroundStyle(TerminalTheme.Colors.textSecondary)
-                Button("Sign In", action: onSignIn)
-                    .font(TerminalTheme.Fonts.caption)
-                    .foregroundStyle(TerminalTheme.Colors.accent)
-            }
-        }
-    }
-}
-
-/// Shown when a cookie was found but the console no longer recognizes it -
-/// most likely the console session has expired and needs a fresh sign-in.
-private struct SessionExpiredStateView: View {
-    var onSignIn: () -> Void
-
-    var body: some View {
-        HStack(spacing: TerminalTheme.Spacing.sm) {
-            RingGaugeView(progress: 0, valueText: "—", label: "—", tint: TerminalTheme.Colors.textTertiary, size: TerminalTheme.Metrics.secondaryRingSize, lineWidth: 3)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Session expired")
-                    .font(TerminalTheme.Fonts.body.weight(.semibold))
-                Text("Console session expired - sign in again, then refresh.")
-                    .font(TerminalTheme.Fonts.caption)
-                    .foregroundStyle(TerminalTheme.Colors.textSecondary)
-                Button("Sign In", action: onSignIn)
-                    .font(TerminalTheme.Fonts.caption)
-                    .foregroundStyle(TerminalTheme.Colors.accent)
             }
         }
     }
 }
 
 #Preview {
-    ZenBalanceCard(viewModel: ZenBalanceViewModel(appSettings: AppSettings()))
+    ZenBalanceCard(viewModel: ZenBalanceViewModel())
         .padding()
         .background(TerminalTheme.Colors.background)
 }

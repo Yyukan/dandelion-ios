@@ -1,18 +1,26 @@
 //
-//  GoAPIKeyStore.swift
+//  APIKeyStore.swift
 //  Dandelion
 //
-//  Stores the user's OpenCode Go API key in the iOS Keychain (never
-//  plaintext). iOS is sandboxed and cannot read OpenCode's local
+//  Stores the user's OpenCode API key in the iOS Keychain (never plaintext).
+//  iOS is sandboxed and cannot read OpenCode's local
 //  `~/.local/share/opencode/auth.json`, so - unlike the macOS app, which
-//  auto-discovers the key there - the key is pasted once in Settings and
-//  read back by `UsageService` for every Go usage fetch.
+//  auto-discovers the key there - the key is pasted once in Settings and read
+//  back by `UsageService` on every refresh.
+//
+//  One key covers both surfaces the app shows: the console's billing JSON API
+//  (Zen balance) and Go usage. Both authenticate with
+//  `Authorization: Bearer <key>`; there is no sign-in, no browser session and
+//  no cookie jar involved anywhere.
+//
+//  The Keychain account string is deliberately unchanged from when this store
+//  only held the Go key, so an already-saved key survives this rename.
 //
 
 import Foundation
 import Security
 
-struct GoAPIKeyStore: Sendable {
+struct APIKeyStore: Sendable {
     private static let service = "nl.ostconsultancy.Dandelion"
     private static let account = "opencode-go-api-key"
 

@@ -28,8 +28,10 @@ A native iOS app for **OpenCode Zen** (pay-as-you-go) and **OpenCode Go** (subsc
 
 ## Credentials
 
-- **Zen balance** — sign in to the [OpenCode console](https://opencode.ai/console/) once, from the app's in-app browser (Settings → Sign In). Use **GitHub**: Google blocks OAuth inside embedded web views.
-- **Go usage** — create an API key at [opencode.ai/docs/go](https://opencode.ai/docs/go) and paste it into Settings. Both credentials are stored in the iOS Keychain only.
+- **One API key, both cards** — create a key in the [OpenCode console](https://opencode.ai/console/) (Go or personal), then paste it into Settings. It is stored in the iOS Keychain only.
+- The key reads your **Zen balance** (`/console/api/billing/status`) and your **Go usage** (`/inference/go/v1/usage`). There is no sign-in and no browser session; the app never calls a model, so it never spends credits.
+- The model catalog needs no credential at all — it comes from OpenCode's public model lists and docs pages.
+- Remove or replace the key in Settings; removing it must be explicit (a key typed and never submitted is saved on focus loss, so it isn't lost).
 
 ## Running locally
 

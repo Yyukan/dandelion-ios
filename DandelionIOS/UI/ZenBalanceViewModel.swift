@@ -2,10 +2,9 @@
 //  ZenBalanceViewModel.swift
 //  Dandelion
 //
-//  Drives ZenBalanceCard: reads the `__Host-console_session` cookie captured
-//  by SessionAuthService's in-app sign-in and uses it against the OpenCode
-//  console's billing JSON API, degrading gracefully when no cookie exists yet
-//  or the endpoint fails.
+//  Drives ZenBalanceCard from the console's billing JSON API, authenticated
+//  with the API key saved in Settings - no browser session, no cookie -
+//  degrading gracefully when no key exists yet or the endpoint fails.
 //
 
 import Foundation
@@ -15,13 +14,12 @@ import Observation
 enum ZenBalanceState: Equatable {
     case loading
     case loaded(ZenBalance)
-    /// No session cookie has been captured yet - show "—" + a Sign In
-    /// button instead of crashing or blocking the rest of the UI.
+    /// No API key has been saved yet - show "—" and point at Settings.
+    case needsKey
+    /// A key was found, but the console rejected it - revoked or rotated.
+    case unauthorized
+    /// No credential problem: the request failed or the payload was unusable.
     case unavailable
-    /// A cookie was found, but the console rejected it or its payload was
-    /// unusable - most likely the console session has expired and needs a
-    /// fresh sign-in.
-    case sessionExpired
 }
 
 @MainActor
@@ -29,44 +27,24 @@ enum ZenBalanceState: Equatable {
 final class ZenBalanceViewModel {
     private(set) var state: ZenBalanceState = .loading
 
-    private let cookieStore: SessionCookieStore
     private let usageService: UsageService
-    private let appSettings: AppSettings
 
-    init(
-        appSettings: AppSettings,
-        cookieStore: SessionCookieStore = SessionCookieStore(),
-        usageService: UsageService = UsageService()
-    ) {
-        self.appSettings = appSettings
-        self.cookieStore = cookieStore
+    init(usageService: UsageService = UsageService()) {
         self.usageService = usageService
     }
 
     func refresh() async {
         state = .loading
 
-        guard let cookieValue = cookieStore.load() else {
-            state = .unavailable
-            return
-        }
-        let cookie = SessionCookie(value: cookieValue)
-
         do {
-            let workspaceOverride = appSettings.manualWorkspaceID
-            let balance = try await usageService.fetchZenBalance(
-                cookie: cookie,
-                workspaceIDOverride: workspaceOverride.isEmpty ? nil : workspaceOverride
-            )
-            state = .loaded(balance)
+            state = .loaded(try await usageService.fetchZenBalance())
         } catch let error as UsageServiceError {
             switch error {
-            case .workspaceNotFound, .balanceNotFound, .sessionExpired:
-                // A cookie was found, but the console rejected it or its
-                // payload was unusable - the most likely cause is that the
-                // console session behind it has since expired.
-                state = .sessionExpired
-            case .goUsageNotFound, .missingGoAPIKey, .network:
+            case .missingAPIKey:
+                state = .needsKey
+            case .unauthorized:
+                state = .unauthorized
+            case .balanceNotFound, .usageNotFound, .network:
                 state = .unavailable
             }
         } catch {
