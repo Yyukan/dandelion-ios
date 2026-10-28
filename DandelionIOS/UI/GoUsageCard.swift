@@ -29,10 +29,12 @@ struct GoUsageCard: View {
                 loadingRings
             case .loaded(let summary):
                 loadedContent(summary)
-            case .unavailable:
+            case .needsKey:
                 MissingKeyStateView()
-            case .sessionExpired:
-                SessionExpiredStateView()
+            case .unauthorized:
+                UnauthorizedStateView()
+            case .unavailable:
+                UnreachableStateView()
             }
         }
         .task { await viewModel.refresh() }
@@ -89,8 +91,8 @@ struct GoUsageCard: View {
     }
 }
 
-/// Shown when no Go API key has been saved yet - never blocks the rest of
-/// the dashboard, just points at where to create one and paste it.
+/// Shown when no API key has been saved yet - never blocks the rest of the
+/// dashboard, just points at where to create one and paste it.
 private struct MissingKeyStateView: View {
     var body: some View {
         HStack(spacing: TerminalTheme.Spacing.sm) {
@@ -98,10 +100,10 @@ private struct MissingKeyStateView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Usage unavailable")
                     .font(TerminalTheme.Fonts.body.weight(.semibold))
-                Text("No OpenCode Go key found - add it in Settings, then refresh.")
+                Text("No API key saved - tap this card to open Settings and paste one.")
                     .font(TerminalTheme.Fonts.caption)
                     .foregroundStyle(TerminalTheme.Colors.textSecondary)
-                Link("Go setup", destination: URL(string: "https://opencode.ai/docs/go")!)
+                Link("OpenCode API keys", destination: URL(string: "https://opencode.ai/console")!)
                     .font(TerminalTheme.Fonts.caption)
                     .foregroundStyle(TerminalTheme.Colors.accent)
             }
@@ -109,21 +111,38 @@ private struct MissingKeyStateView: View {
     }
 }
 
-/// Shown when a key was saved but the endpoint rejected it - the key was
-/// revoked or rotated and OpenCode Go needs reconnecting.
-private struct SessionExpiredStateView: View {
+/// Shown when a key was saved but the endpoint rejected it - revoked or
+/// rotated, or the account has no Go subscription.
+private struct UnauthorizedStateView: View {
     var body: some View {
         HStack(spacing: TerminalTheme.Spacing.sm) {
             RingGaugeView(progress: 0, valueText: "—", label: "Usage", tint: TerminalTheme.Colors.textTertiary, size: TerminalTheme.Metrics.secondaryRingSize, lineWidth: 3)
             VStack(alignment: .leading, spacing: 2) {
-                Text("Session expired")
+                Text("API key rejected")
                     .font(TerminalTheme.Fonts.body.weight(.semibold))
-                Text("Go API key rejected - reconnect OpenCode Go, then refresh.")
+                Text("OpenCode refused the saved key. Replace it in Settings, then refresh.")
                     .font(TerminalTheme.Fonts.caption)
                     .foregroundStyle(TerminalTheme.Colors.textSecondary)
-                Link("Go setup", destination: URL(string: "https://opencode.ai/docs/go")!)
+                Link("OpenCode Go", destination: URL(string: "https://opencode.ai/docs/go")!)
                     .font(TerminalTheme.Fonts.caption)
                     .foregroundStyle(TerminalTheme.Colors.accent)
+            }
+        }
+    }
+}
+
+/// Shown when the request itself failed (network, unexpected payload) - the
+/// key may well be fine.
+private struct UnreachableStateView: View {
+    var body: some View {
+        HStack(spacing: TerminalTheme.Spacing.sm) {
+            RingGaugeView(progress: 0, valueText: "—", label: "Usage", tint: TerminalTheme.Colors.textTertiary, size: TerminalTheme.Metrics.secondaryRingSize, lineWidth: 3)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Usage unavailable")
+                    .font(TerminalTheme.Fonts.body.weight(.semibold))
+                Text("Couldn't reach OpenCode. Pull to refresh to try again.")
+                    .font(TerminalTheme.Fonts.caption)
+                    .foregroundStyle(TerminalTheme.Colors.textSecondary)
             }
         }
     }

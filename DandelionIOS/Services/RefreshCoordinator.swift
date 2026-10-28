@@ -90,7 +90,7 @@ final class RefreshCoordinator {
 
     /// Builds the Lock Screen widgets' cached snapshot from whatever the two
     /// view models just settled on - `nil` percentages (the `.empty` default)
-    /// stick around for `.unavailable`/`.sessionExpired`/`.loading`, so the
+    /// stick around for `.unavailable`/`.needsKey`/`.loading`, so the
     /// widgets fall back to an empty gauge instead of showing stale numbers.
     private func buildWidgetSnapshot() -> WidgetUsageSnapshot {
         var snapshot = WidgetUsageSnapshot.empty

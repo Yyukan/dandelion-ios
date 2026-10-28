@@ -2,12 +2,11 @@
 //  SettingsView.swift
 //  Dandelion
 //
-//  OpenCode console sign-in status, the OpenCode Go API key, and the
-//  auto-refresh interval picker. iOS has no local auth.json or browser
-//  cookie jar to auto-discover, so both credentials are first-class,
-//  user-initiated actions here: the console session comes from an in-app
-//  WKWebView sign-in (see SessionAuthService), and the Go key is pasted
-//  into the SecureField below (see GoAPIKeyStore).
+//  The OpenCode API key and the auto-refresh interval picker. One key covers
+//  both surfaces the app shows - the console's billing API (Zen balance) and
+//  Go usage - and it is stored in the Keychain (see APIKeyStore). There is no
+//  sign-in flow: iOS has no access to OpenCode's local auth.json or a browser
+//  cookie jar, and neither is needed any more.
 //
 
 import SwiftUI
@@ -15,21 +14,18 @@ import SwiftUI
 struct SettingsView: View {
     let model: AppModel
 
-    @Environment(\.dismiss) private var dismiss
-    @State private var showSignIn = false
-    @State private var goAPIKey = ""
+    @State private var apiKey = ""
     /// First characters of the stored key, so it's obvious one is saved;
     /// `nil` when no key is stored, in which case nothing is shown.
     @State private var storedKeyPrefix: String?
     @FocusState private var keyFieldFocused: Bool
 
-    private let goAPIKeyStore = GoAPIKeyStore()
+    private let apiKeyStore = APIKeyStore()
 
     var body: some View {
         NavigationStack {
             Form {
-                accountSection
-                goKeySection
+                keySection
                 refreshSection
                 aboutSection
             }
@@ -38,77 +34,49 @@ struct SettingsView: View {
             .foregroundStyle(TerminalTheme.Colors.textPrimary)
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showSignIn) {
-                SignInWebView(url: model.authService.signInURL) { cookieValue in
-                    Task { await model.finishSignIn(cookieValue: cookieValue) }
-                }
-            }
             .task { refreshStoredKey() }
         }
     }
 
-    private var accountSection: some View {
-        Section("OpenCode Account") {
-            if model.authService.isSignedIn {
-                Label("Signed in", systemImage: "checkmark.circle.fill")
-                    .foregroundStyle(TerminalTheme.Colors.accent)
-                Button("Sign Out", role: .destructive) {
-                    model.authService.signOut()
-                    Task { await model.refreshCoordinator.refreshNow() }
-                    dismiss()
-                }
-            } else {
-                Text("Sign in to the OpenCode console to see your live Zen balance.")
-                    .font(TerminalTheme.Fonts.caption)
-                    .foregroundStyle(TerminalTheme.Colors.textSecondary)
-            }
-
-            Button(model.authService.isSignedIn ? "Sign In Again" : "Sign In") {
-                showSignIn = true
-            }
-
-            Text("Sign in with GitHub - Google may block OAuth inside the app's web view.")
-                .font(TerminalTheme.Fonts.caption)
-                .foregroundStyle(TerminalTheme.Colors.textTertiary)
-        }
-    }
-
-    private var goKeySection: some View {
-        Section("OpenCode Go") {
+    private var keySection: some View {
+        Section("OpenCode API key") {
             if let storedKeyPrefix {
                 LabeledContent("Saved key", value: "\(storedKeyPrefix)…")
-                Button("Remove Key", role: .destructive, action: removeGoAPIKey)
+                Button("Remove Key", role: .destructive, action: removeAPIKey)
             }
 
-            SecureField(storedKeyPrefix == nil ? "API key" : "Replace key", text: $goAPIKey)
+            SecureField(storedKeyPrefix == nil ? "API key" : "Replace key", text: $apiKey)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .focused($keyFieldFocused)
                 .submitLabel(.done)
-                .onSubmit(saveGoAPIKey)
+                .onSubmit(saveAPIKey)
                 // Save on focus loss as well, so a key typed but never
                 // submitted isn't silently dropped when the sheet closes.
                 .onChange(of: keyFieldFocused) { _, isFocused in
-                    if !isFocused { saveGoAPIKey() }
+                    if !isFocused { saveAPIKey() }
                 }
 
-            Text("Type or paste the key and press Done to save it. Go usage needs one; create it at opencode.ai/docs/go.")
+            Text("One key powers both cards: it reads your Zen balance and your Go usage. Create it in the OpenCode console, then paste it here.")
                 .font(TerminalTheme.Fonts.caption)
                 .foregroundStyle(TerminalTheme.Colors.textSecondary)
+
+            Link("OpenCode console", destination: URL(string: "https://opencode.ai/console")!)
+                .font(TerminalTheme.Fonts.caption)
         }
     }
 
-    private func saveGoAPIKey() {
-        let key = goAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
+    private func saveAPIKey() {
+        let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !key.isEmpty else { return }
-        goAPIKeyStore.save(key)
-        goAPIKey = ""
+        apiKeyStore.save(key)
+        apiKey = ""
         refreshStoredKey()
         Task { await model.refreshCoordinator.refreshNow() }
     }
 
-    private func removeGoAPIKey() {
-        goAPIKeyStore.clear()
+    private func removeAPIKey() {
+        apiKeyStore.clear()
         refreshStoredKey()
         Task { await model.refreshCoordinator.refreshNow() }
     }
@@ -116,7 +84,7 @@ struct SettingsView: View {
     /// Mirrors the keychain into `storedKeyPrefix` - first 10 characters only,
     /// never the whole key.
     private func refreshStoredKey() {
-        storedKeyPrefix = goAPIKeyStore.load().map { String($0.prefix(10)) }
+        storedKeyPrefix = apiKeyStore.load().map { String($0.prefix(10)) }
     }
 
     private var refreshSection: some View {

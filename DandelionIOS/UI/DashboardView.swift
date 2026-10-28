@@ -17,13 +17,12 @@ struct DashboardView: View {
     let model: AppModel
 
     @State private var showSettings = false
-    @State private var showSignIn = false
 
     var body: some View {
         NavigationStack {
             VStack(spacing: TerminalTheme.Spacing.md) {
                 CardContainer {
-                    ZenBalanceCard(viewModel: model.zenBalanceViewModel, onSignIn: signIn)
+                    ZenBalanceCard(viewModel: model.zenBalanceViewModel)
                 }
                 .contentShape(Rectangle())
                 .onTapGesture { showSettings = true }
@@ -51,17 +50,8 @@ struct DashboardView: View {
             .sheet(isPresented: $showSettings) {
                 SettingsView(model: model)
             }
-            .sheet(isPresented: $showSignIn) {
-                SignInWebView(url: model.authService.signInURL) { cookieValue in
-                    Task { await model.finishSignIn(cookieValue: cookieValue) }
-                }
-            }
         }
         .task { await model.refreshCoordinator.refreshNow() }
-    }
-
-    private func signIn() {
-        showSignIn = true
     }
 }
 
