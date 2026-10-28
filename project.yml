@@ -23,8 +23,8 @@ targets:
       path: DandelionIOS/Info.plist
       properties:
         CFBundleDisplayName: Dandelion
-        CFBundleShortVersionString: "0.2.0"
-        CFBundleVersion: "2"
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         CFBundleIconName: AppIcon
         NSHumanReadableCopyright: "Copyright © 2026 OST Consultancy"
         UILaunchScreen: {}
@@ -65,8 +65,8 @@ targets:
       path: DandelionWidget/Info.plist
       properties:
         CFBundleDisplayName: DandelionWidget
-        CFBundleShortVersionString: "0.2.0"
-        CFBundleVersion: "2"
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     entitlements:
