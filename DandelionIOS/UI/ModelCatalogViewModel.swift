@@ -2,10 +2,10 @@
 //  ModelCatalogViewModel.swift
 //  Dandelion
 //
-//  Drives ModelCatalogView: loads the merged Zen + Go pricing/limit catalog.
+//  Drives ModelCatalogView: loads the Zen + Go pricing/limit catalog.
 //  There's no local API key to discover/validate first - the catalog comes
-//  from OpenCode's own public endpoints and docs pages, so it just loads
-//  directly on appearance.
+//  from OpenCode's public model endpoints, so it just loads directly on
+//  appearance.
 //
 
 import Foundation
@@ -50,7 +50,7 @@ final class ModelCatalogViewModel {
     var sortOption: CatalogSortOption = .name
 
     /// Usage-limit sorting only makes sense for Go (Zen models never carry
-    /// `usageLimits`), so hide those options unless Go is the active filter.
+    /// `goAllowance`), so hide those options unless Go is the active filter.
     var availableSortOptions: [CatalogSortOption] {
         switch providerFilter {
         case .zen: [.name, .priceAscending, .priceDescending]
@@ -82,9 +82,9 @@ final class ModelCatalogViewModel {
         case .priceDescending:
             result.sort { isOrdered($0.pricing.inputPerM, $1.pricing.inputPerM, ascending: false, lhs: $0, rhs: $1) }
         case .usageLimitAscending:
-            result.sort { isOrdered($0.usageLimits?.requestsPerMonth, $1.usageLimits?.requestsPerMonth, ascending: true, lhs: $0, rhs: $1) }
+            result.sort { isOrdered($0.goAllowance?.go, $1.goAllowance?.go, ascending: true, lhs: $0, rhs: $1) }
         case .usageLimitDescending:
-            result.sort { isOrdered($0.usageLimits?.requestsPerMonth, $1.usageLimits?.requestsPerMonth, ascending: false, lhs: $0, rhs: $1) }
+            result.sort { isOrdered($0.goAllowance?.go, $1.goAllowance?.go, ascending: false, lhs: $0, rhs: $1) }
         }
 
         return result
