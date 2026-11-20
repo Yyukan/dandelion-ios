@@ -3,7 +3,7 @@
 //  Dandelion
 //
 //  Full, searchable Zen + Go model catalog: per-model input/output pricing
-//  plus the Go-only 5h/weekly/monthly usage limits. There's no
+//  plus the Go-only 5h/weekly/monthly dollar limits. There's no
 //  disconnected-state gate
 //  here - the catalog needs no local API key, so it always loads. Split into
 //  two independent views: ModelCatalogControls (static) and ModelCatalogList,
@@ -96,7 +96,7 @@ struct ModelCatalogList: View {
 }
 
 /// A single catalog row: vendor icon, name, colorized in/out pricing, and
-/// (Go only) colorized usage-window limits. The model ID is never shown -
+/// (Go only) the 5h/weekly/monthly limit chips. The model ID is never shown -
 /// it's the tap-to-copy target instead, confirmed by a brief border flash.
 private struct CatalogModelRow: View {
     let model: CatalogModel
@@ -110,8 +110,8 @@ private struct CatalogModelRow: View {
                 Text(model.displayName)
                     .font(TerminalTheme.Fonts.body.weight(.semibold))
                     .lineLimit(1)
-                if model.provider == .go, let usageLimits = model.usageLimits {
-                    usageLimitsRow(usageLimits)
+                if model.provider == .go {
+                    goLimitsRow
                 }
             }
             // The name column must win the space before the trailing price
@@ -152,8 +152,12 @@ private struct CatalogModelRow: View {
     /// more compact than stacking them, and the slash reads like a ratio.
     private var priceStack: some View {
         Group {
-            if !model.pricing.isPublished {
-                // The docs don't price every model the API already serves.
+            if let unitPrice = model.pricing.unitPrice {
+                // Audio/image models are priced per minute/image, not per token.
+                Text(Self.unitPrice(unitPrice))
+                    .foregroundStyle(Self.priceColor(unitPrice.price, max: Self.maxInputPrice(model.provider)))
+            } else if !model.pricing.isPublished {
+                // The endpoint lists the model without any cost.
                 Text("—")
                     .foregroundStyle(TerminalTheme.Colors.textTertiary)
             } else if model.pricing.isFree {
@@ -173,34 +177,36 @@ private struct CatalogModelRow: View {
         .font(TerminalTheme.Fonts.caption)
     }
 
-    /// Go-only: estimated requests per 5h / week / month, from OpenCode's
-    /// docs usage-limits table, each colored on the same blue scale as
-    /// price - but inverted, since a *higher* request count is the "cheap"
-    /// (generous) end and a *lower* one is the "expensive" (scarce) end.
-    /// Icons stand in for the "5h"/"Week"/"Month" labels to keep the row compact.
-    private func usageLimitsRow(_ limits: GoUsageLimits) -> some View {
-        HStack(spacing: 4) {
-            usageSegment("clock", limits.requestsPer5h, max: Self.maxUsage5h)
-            dot
-            usageSegment("calendar", limits.requestsPerWeek, max: Self.maxUsageWeek)
-            dot
-            usageSegment("calendar.circle", limits.requestsPerMonth, max: Self.maxUsageMonth)
+    /// Go-only, one line: the three limit chips, exactly as OpenCode documents
+    /// them - the 5-hour limit is 20% of the monthly allowance, the weekly
+    /// limit is 50% (resets Monday 00:00 UTC), the monthly limit is 100%.
+    /// Free models never draw down the allowance, so they show "∞".
+    private var goLimitsRow: some View {
+        let monthly = model.goAllowance?.go
+        let unlimited = model.pricing.isFree
+
+        func value(_ fraction: Double) -> String {
+            if unlimited { return "∞" }
+            guard let monthly else { return "—" }
+            return Self.money(monthly * fraction)
+        }
+
+        return HStack(spacing: 10) {
+            limitChip("clock", value(0.20))
+            limitChip("calendar", value(0.50))
+            limitChip("dollarsign.circle", value(1))
         }
         .font(TerminalTheme.Fonts.caption)
     }
 
-    private var dot: some View {
-        Text("·").foregroundStyle(TerminalTheme.Colors.textTertiary)
-    }
-
-    private func usageSegment(_ systemImage: String, _ value: Int, max: Double) -> some View {
-        HStack(spacing: 2) {
+    private func limitChip(_ systemImage: String, _ value: String) -> some View {
+        HStack(spacing: 3) {
             Image(systemName: systemImage)
                 .foregroundStyle(TerminalTheme.Colors.textTertiary)
-            Text(Self.count(value))
-                .foregroundStyle(Self.limitColor(value, max: max))
-                .fixedSize()
+            Text(value)
+                .foregroundStyle(TerminalTheme.Colors.textSecondary)
         }
+        .fixedSize()
     }
 
     /// Copies the (hidden) model ID to the clipboard and briefly flashes the
@@ -227,22 +233,20 @@ private struct CatalogModelRow: View {
         provider == .zen ? 180 : 15
     }
 
-    /// Usage-window ceilings, from the current Go catalog's own extremes
-    /// (rounded up), used the same way to normalize the limit color.
-    private static let maxUsage5h = 32_000.0
-    private static let maxUsageWeek = 80_000.0
-    private static let maxUsageMonth = 160_000.0
-
     private static func simplePrice(_ value: Double?) -> String {
         guard let value else { return "—" }
         return "$" + String(format: "%.2f", value)
     }
 
-    private static func count(_ value: Int) -> String {
-        if value >= 1_000 {
-            return String(format: "%.0fK", Double(value) / 1_000)
-        }
-        return "\(value)"
+    /// "$0.05/min", "$0.01/image".
+    private static func unitPrice(_ unitPrice: UnitPrice) -> String {
+        let unit = unitPrice.unit == "minute" ? "min" : unitPrice.unit
+        return simplePrice(unitPrice.price) + "/" + unit
+    }
+
+    /// Whole dollars without cents ("$100"), otherwise two decimals.
+    private static func money(_ value: Double) -> String {
+        value == value.rounded() ? String(format: "$%.0f", value) : simplePrice(value)
     }
 
     /// Colors a price on a log scale within the app's blue accent family
@@ -251,14 +255,6 @@ private struct CatalogModelRow: View {
     private static func priceColor(_ value: Double?, max: Double) -> Color {
         guard let value, value > 0 else { return TerminalTheme.Colors.textTertiary }
         return blueGradient(min(1, log10(value + 1) / log10(max + 1)))
-    }
-
-    /// Colors a usage limit on the same blue scale, but inverted: a high
-    /// request count is the "cheap" end (cyan), a low one is the
-    /// "expensive"/scarce end (indigo).
-    private static func limitColor(_ value: Int, max: Double) -> Color {
-        let t = min(1, log10(Double(value) + 1) / log10(max + 1))
-        return blueGradient(1 - t)
     }
 
     private static func blueGradient(_ t: Double) -> Color {
